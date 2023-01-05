@@ -33,23 +33,43 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
-        simpleChronometer = findViewById(R.id.simpleChronometer);
-        simpleChronometer.start();
-        matchCount = findViewById(R.id.matches);
-        matchCount.setText("0 of 6 matches");
+        startChronometer();
+        startMatchCount();
+        initialiseImages();
+        setEventListenersForAllPlaceholders();
+        createCorrectMusicPlayer();
+        createWrongMusicPlayer();
+    }
+    protected void initialiseImages(){
         Intent intent = getIntent();
         List<String> selectedImages = intent.getStringArrayListExtra("selectedImages");
         allFilesNames = new ArrayList<>(selectedImages);
+    }
+    protected void startChronometer(){
+        simpleChronometer = findViewById(R.id.simpleChronometer);
+        simpleChronometer.start();
+    }
+
+    protected void startMatchCount(){
+        matchCount = findViewById(R.id.matches);
+        matchCount.setText("0 of 6 matches");
+    }
+
+    protected void createCorrectMusicPlayer(){
+        int correctId = getResources().getIdentifier("correct", "raw", getPackageName());
+        correctPlayer = MediaPlayer.create(this, correctId);
+    }
+    protected void createWrongMusicPlayer(){
+        int wrongId = getResources().getIdentifier("wrong", "raw", getPackageName());
+        wrongPlayer = MediaPlayer.create(this, wrongId);
+    }
+    protected void setEventListenersForAllPlaceholders(){
         for (int i= 1; i<=12; i++){
             ImageView image = findViewById(
                     getResources().getIdentifier("image" + i, "id", getPackageName())
             );
             image.setOnClickListener(this);
         }
-        int correctId = getResources().getIdentifier("correct", "raw", getPackageName());
-        correctPlayer = MediaPlayer.create(this, correctId);
-        int wrongId = getResources().getIdentifier("wrong", "raw", getPackageName());
-        wrongPlayer = MediaPlayer.create(this, wrongId);
     }
 
     protected void updateImageView(String filename, int num) {
@@ -62,6 +82,51 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         Bitmap resized = Bitmap.createScaledBitmap(bitmap, 160, 160, true);
         image.setImageBitmap(resized);
 
+    }
+
+    protected void returnToMainActivityWhenCriteriaMet(){
+        if (openedImagesCount.size() == 12){
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    protected void updateMatchCount(int index){
+        openedImagesCount.add(index);
+        int numberMatches = openedImagesCount.size()/2;
+        matchCount = findViewById(R.id.matches);
+        matchCount.setText("" + numberMatches + " of 6 matches");
+    }
+
+    protected void delayAfterCorrectMatch(){
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                otherIndex = null;
+                pendingImages = 0;
+                returnToMainActivityWhenCriteriaMet();
+            }
+        }, 2000);
+    }
+
+    protected void delayAfterWrongMatch(ImageView image){
+        image.postDelayed(new Runnable(){
+            @Override
+            public void run(){
+                image.setImageResource(R.drawable.envelope);
+            }
+        },2000);
+        ImageView otherImage = findViewById(getResources().getIdentifier("image" + otherIndex, "id", getPackageName()));
+        otherImage.postDelayed(new Runnable(){
+            @Override
+            public void run(){
+                otherImage.setImageResource(R.drawable.envelope);
+                openedImagesCount.remove(otherIndex);
+                otherIndex = null;
+                pendingImages = 0;
+            }
+        },2000);
     }
 
     @Override
@@ -81,42 +146,13 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
                 updateImageView(selectedFileName, index);
                 pendingImages += 1;
                 if (selectedFileName.equals(allFilesNames.get(otherIndex-1))){
-                    openedImagesCount.add(index);
-                    int numberMatches = openedImagesCount.size()/2;
-                    matchCount = findViewById(R.id.matches);
-                    matchCount.setText("" + numberMatches + " of 6 matches");
+                    updateMatchCount(index);
                     correctPlayer.start();
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            otherIndex = null;
-                            pendingImages = 0;
-                            if (openedImagesCount.size() == 12){
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(intent);
-                            }
-                        }
-                    }, 2000);
+                    delayAfterCorrectMatch();
                 }
                 else{
-                    image.postDelayed(new Runnable(){
-                        @Override
-                        public void run(){
-                            image.setImageResource(R.drawable.envelope);
-                        }
-                    },2000);
-                    ImageView otherImage = findViewById(getResources().getIdentifier("image" + otherIndex, "id", getPackageName()));
-                    otherImage.postDelayed(new Runnable(){
-                        @Override
-                        public void run(){
-                            otherImage.setImageResource(R.drawable.envelope);
-                            openedImagesCount.remove(otherIndex);
-                            otherIndex = null;
-                            pendingImages = 0;
-                        }
-                    },2000);
                     wrongPlayer.start();
+                    delayAfterWrongMatch(image);
                 }
             }
         }

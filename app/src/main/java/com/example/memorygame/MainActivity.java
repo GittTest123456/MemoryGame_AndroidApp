@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 updateImageView(filename, num);
                 updateProgress();
 
-                if (imageUrl.size() > num) {
+                if (num < imageUrl.size()) {
                     activateDownloadService(imageUrl.get(num),num+1);
                 }
             }
@@ -90,6 +90,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fetch = findViewById(R.id.fetch);
         fetch.setOnClickListener(this);
         initReceiver();
+        setEventListenerForAllPlaceHolders();
+    }
+
+    @Override
+    public void onClick(View v){
+        int id = v.getId();
+        if (id == R.id.fetch){
+            if (bkgdThread != null) {
+                showReadyUI();}
+            url = findViewById(R.id.url);
+            String urlAddress = url.getText().toString();
+            validateHttpsUrl(urlAddress);
+            initImageURL(urlAddress);
+            awaitForAllUrlsThreadToComplete();
+            checkForUrlOutput();
+            activateDownloadService(imageUrl.get(0), 1);
+            setProgressBarVisible();}
+        else{
+            if (progressCompleted()){
+                String name = getResources().getResourceEntryName(v.getId());
+                int index = Integer.parseInt(name.substring(5));
+                ImageView image = (ImageView) v;
+                if (!selectedImages.contains(fileNames.get(index-1))){
+                    if (selectedImages.size() < 6){
+                        selectImage(index,image);}
+                }
+                else{
+                    unselectImage(index, image);
+                }
+                if (selectedImages.size() == 6){
+                    launchGame();
+            }
+        }
+
+    }}
+
+    protected void setEventListenerForAllPlaceHolders(){
         for (int i= 1; i<=20; i++){
             ImageView image = findViewById(
                     getResources().getIdentifier("image" + i, "id", getPackageName())
@@ -98,65 +135,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onClick(View v){
-        int id = v.getId();
-        if (id == R.id.fetch){
-            if (bkgdThread != null) {
-                showReadyUI();
-                if (progressBar !=null){
-                progressBar.setProgress(0);
-                progressNote.setText("");
-                imageUrl.clear();
-                fileNames.clear();
-                selectedImages.clear();
-                identifier = null;}}
-            url = findViewById(R.id.url);
-            String urlAddress = url.getText().toString();
-            if (!urlAddress.startsWith("https://")){
-                Toast.makeText(getApplicationContext(), "The url has to start with https://", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            initImageURL(urlAddress);
-            try{
-                bkgdThread.join();}
-            catch(InterruptedException e){
-                System.out.println("InterruptedException");}
-            if (imageUrl.isEmpty()){
-                Toast.makeText(getApplicationContext(), "This url provided is either invalid or does not have available images for public extraction. Please input another url.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            activateDownloadService(imageUrl.get(0), 1);
-            progressBar = findViewById(R.id.progressBar);
-            progressBar.setVisibility(View.VISIBLE);
-            if (imageUrl.size()<20){
-                Toast.makeText(getApplicationContext(), "This url does not have enough images (at least twenty) to start the selection and the game. Please try another url.", Toast.LENGTH_SHORT).show();
-            }}
-        else{
-            if (progressBar.getProgress() == progressBar.getMax()){
-                String name = getResources().getResourceEntryName(v.getId());
-                int index = Integer.parseInt(name.substring(5));
-                ImageView image = (ImageView) v;
-                if (!selectedImages.contains(fileNames.get(index-1))){
-                    if (selectedImages.size() < 6){
-                        image.setColorFilter(ContextCompat.getColor(getApplicationContext(), androidx.cardview.R.color.cardview_shadow_start_color), PorterDuff.Mode.SRC_OVER);
-                        selectedImages.add(fileNames.get(index-1));}
-                }
-                else{
-                    selectedImages.remove(fileNames.get(index-1));
-                    image.clearColorFilter();
-                }
-                if (selectedImages.size() == 6){
-                    Intent intent = new Intent(MainActivity.this,MainActivity2.class);
-                    ArrayList<String> duplicate = new ArrayList<>(selectedImages);
-                    duplicate.addAll(selectedImages);
-                    Collections.shuffle(duplicate);
-                    intent.putStringArrayListExtra("selectedImages", duplicate);
-                    startActivity(intent);
-            }
-        }
+    protected boolean progressCompleted(){
+        return progressBar.getProgress() == progressBar.getMax();
+    }
 
-    }}
+    protected void setProgressBarVisible(){
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    protected void validateHttpsUrl(String urlAddress){
+        if (!urlAddress.startsWith("https://")){
+            Toast.makeText(getApplicationContext(), "The url has to start with https://", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void checkForUrlOutput(){
+        if (imageUrl.isEmpty()){
+            Toast.makeText(getApplicationContext(), "This url provided is either invalid or does not have available images for public extraction. Please input another url.", Toast.LENGTH_SHORT).show();
+        }
+        if (imageUrl.size()<20){
+            Toast.makeText(getApplicationContext(), "This url does not have enough images (at least twenty) to start the selection and the game. Please try another url.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    protected void selectImage(int index, ImageView image){
+        image.setColorFilter(ContextCompat.getColor(getApplicationContext(), androidx.cardview.R.color.cardview_shadow_start_color), PorterDuff.Mode.SRC_OVER);
+        selectedImages.add(fileNames.get(index-1));
+    }
+
+    protected void unselectImage(int index, ImageView image){
+        selectedImages.remove(fileNames.get(index-1));
+        image.clearColorFilter();
+    }
+
+    protected void awaitForAllUrlsThreadToComplete(){
+        try{
+            bkgdThread.join();}
+        catch(InterruptedException e){
+            System.out.println("InterruptedException");}
+    }
+
+    protected void launchGame(){
+        Intent intent = new Intent(MainActivity.this,MainActivity2.class);
+        ArrayList<String> duplicate = new ArrayList<>(selectedImages);
+        duplicate.addAll(selectedImages);
+        Collections.shuffle(duplicate);
+        intent.putStringArrayListExtra("selectedImages", duplicate);
+        startActivity(intent);
+    }
 
     protected void showReadyUI(){
         for (int i= 1; i<=20; i++){
@@ -166,6 +193,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             image.setImageResource(R.drawable.envelope);
             image.clearColorFilter();
         }
+        if (progressBar !=null){
+            progressBar.setProgress(0);
+            progressNote.setText("");
+            imageUrl.clear();
+            fileNames.clear();
+            selectedImages.clear();
+            identifier = null;}
 
     }
 
