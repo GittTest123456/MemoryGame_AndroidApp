@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity2">
+
+    <EditText
+        android:id="@+id/matches"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/simpleChronometer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.037"
+        app:layout_constraintWidth_percent="0.7" />
+
+    <Chronometer
+        android:id="@+id/simpleChronometer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/matches"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.033"
+        app:layout_constraintWidth_percent="0.3" />
+
+    <GridLayout
+        android:id="@+id/gridlayout"
+        android:layout_width="300dp"
+        android:layout_height="400dp"
+        android:columnCount="3"
+        android:rowCount="4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gridlayout"
+        app:layout_constraintVertical_bias="0.5">
+
+    <ImageView
+        android:id="@+id/image1"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:src="@drawable/envelope" />
+
+    <ImageView
+        android:id="@+id/image2"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+    <ImageView
+        android:id="@+id/image3"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+    <ImageView
+        android:id="@+id/image4"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+    <ImageView
+        android:id="@+id/image5"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+    <ImageView
+        android:id="@+id/image6"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+    <ImageView
+        android:id="@+id/image7"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+
+    <ImageView
+        android:id="@+id/image8"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+    <ImageView
+        android:id="@+id/image9"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+    <ImageView
+        android:id="@+id/image10"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+    <ImageView
+        android:id="@+id/image11"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+
+    <ImageView
+        android:id="@+id/image12"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_rowWeight = "1"
+        android:layout_columnWeight = "1"
+        android:src="@drawable/envelope"/>
+    </GridLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
